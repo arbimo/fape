@@ -23,4 +23,4 @@ case class ProblemFromScene(anml: String) extends ObserverMessage
 object ErrorOnProblemGeneration extends ObserverMessage
 
 case class TimepointExecuted(tp: TPRef, time: Int)
-case class TimepointActive(tp: TPRef)
+case class TimepointActive(tp: TPRef, deadline: Int)

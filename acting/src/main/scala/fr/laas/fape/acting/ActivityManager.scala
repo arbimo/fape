@@ -29,8 +29,6 @@ object ActivityManager {
 
   trait MData
   case object MNothing extends MData
-  case class MPlanner(planner: Planner) extends MData
-  case class MPendingGoals(state: PPlan, pendingGoals: List[String]) extends MData
   class FullPlan(val plan: PPlan) extends MData {
     lazy val actionStarts : Map[TPRef,Action] = plan.getAllActions.asScala.map(a => (a.start, a)).toMap
     lazy val actionEnds : Map[TPRef,Action] = plan.getAllActions.asScala.map(a => (a.end, a)).toMap
@@ -58,13 +56,11 @@ class ActivityManager extends FSM[MState, MData] with MessageLogger {
   val baseDomainFile = "/home/abitmonn/working/robot.anml"
 
   import context.dispatcher
+  import scala.concurrent.ExecutionContext.Implicits.global
   context.system.scheduler.schedule(0.seconds, 0.01.seconds, self, Tick)
 
   val planner = context.actorOf(Props[fr.laas.fape.acting.PlanningActor], name = "planner")
-//  val timeManager = context.actorOf(Props[TemporalConstraintsManager], name = "time-manager")
-
-  val actionDispatcher = context.actorSelection("../actor")
-  val observer = context.actorSelection("../observer")
+  val dispatcher = context.actorSelection("../dispatcher")
 
   val goals = new ArrayBuffer[PartialPlanModification]()
   val executed = mutable.Map[TPRef, Int]()
@@ -106,29 +102,41 @@ class ActivityManager extends FSM[MState, MData] with MessageLogger {
 
   when(MDispatching) {
     case Event(Tick, x: FullPlan) => // there should be no pending goals while dispatching
-      val dispatcher = DispatchableNetwork.getDispatchableNetwork(x.plan.csp.stn, x.plan.csp.stn.timepoints.asScala.toSet.asJava)
+
+      val network = DispatchableNetwork.getDispatchableNetwork(x.plan.csp.stn, x.plan.csp.stn.timepoints.asScala.toSet.asJava)
       for(tp <- executed.keys) {
-        if(!dispatcher.isExecuted(tp))
-          dispatcher.setExecuted(tp, executed(tp))
+        if(!network.isExecuted(tp))
+          network.setExecuted(tp, executed(tp))
       }
       val t = Clock.time()
-      val executables = dispatcher.getExecutables(t).asScala
+      val executables = network.getExecutables(t).asScala
       for (tp <- executables) {
         if (x.actionStarts.contains(tp)) {
           log.info(s"[$t] Starting action: ${Printer.action(x.plan, x.actionStarts(tp))}")
           executed += ((tp, Clock.time()))
-          actionDispatcher ! new ExecutionRequest(x.actionStarts(tp), x.plan, self)
+          dispatcher ! new ExecutionRequest(x.actionStarts(tp), x.plan, self)
         } else if(x.actionsInternalTimepoints.contains(tp)) {
           if(!notifiedActive.contains(tp)) {
             log.info(s"[$t] Notifying of active timepoint")
             notifiedActive.add(tp)
-            actionDispatcher ! (x.actionsInternalTimepoints(tp).name, TimepointActive(tp))
+            dispatcher ! (x.actionsInternalTimepoints(tp), TimepointActive(tp, network.stn.getLatestTime(tp)))
           }
         } else if(!x.actionEnds.contains(tp)) {
-          dispatcher.setExecuted(tp, t)
+          network.setExecuted(tp, t)
           executed += ((tp, t))
         }
       }
+      network.stn.contingentLinks.map(_.dst)
+        .filterNot(notifiedActive.contains)
+        .filter(tp => network.stn.getEarliestTime(tp) <= t)
+        .collect({
+          case tp if x.actionEnds.contains(tp) => (tp, x.actionEnds(tp))
+          case tp if x.actionsInternalTimepoints.contains(tp) => (tp, x.actionsInternalTimepoints(tp))
+        })
+        .foreach { case (tp, action) =>
+          notifiedActive.add(tp)
+          dispatcher ! (action, TimepointActive(tp, network.stn.getLatestTime(tp)))
+        }
       stay()
   }
 
