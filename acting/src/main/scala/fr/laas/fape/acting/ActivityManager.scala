@@ -250,25 +250,32 @@ class ActivityManager extends FSM[MState, MData] with MessageLogger {
   }
 
   def getInitialPlanWithExecutingActions(currentPlan: PPlan) = {
+    // Retrieves all parents of this action in the decomposition tree.
     def parents(a: Action) : List[Action] = {
       val parent = currentPlan.taskNet.getContainingAction(a)
       if(parent != null) parent :: parents(parent)
       else Nil
     }
+    // Create a new empty plan from the problem definition 
     val pplan = new PPlan(Utils.getProblem, Controllability.PSEUDO_CONTROLLABILITY)
+    
+    // add all goals that have not been abandoned
     for(g <- goals if !currentlyAbandonedGoals.contains(g))
       pplan.apply(g, false)
 
+    // select all actions that are executiing or executed or have a child that is
     val executingActions = currentPlan.getAllActions.asScala
       .filter(a => executed.contains(a.start))
       .flatMap(a => a :: parents(a))
       .toSet
 
+    // fetch all modifications of the current plan
     val allMods = currentPlan.getStateModifications.asScala
       .collect {
         case mod:SequenceOfStateModifications => mod.modifications.asScala
         case mod => List(mod)
       }.flatten
+    // select modification regarding insertion or modification of executing actions
     val toKeep = allMods.collect {
       case x:ActionInsertion if executingActions.contains(x.action) =>
         if(actionExtensions.contains(x.action)) new ComposedActionInsertion(x, actionExtensions(x.action))
@@ -279,9 +286,10 @@ class ActivityManager extends FSM[MState, MData] with MessageLogger {
         assert(x.extensions.forall(ext => actionExtensions(x.actionInsertion.action).contains(ext)))
         new ComposedActionInsertion(x.actionInsertion, actionExtensions(x.actionInsertion.action))
     }
+    // apply all those modification to the new partial plan
     toKeep.foreach(mod => pplan.apply(mod, false))
 
-    // add execution constraints
+    // enforce all constraints resulting from dispatching/execution monitoring
     for((tp,time) <- executed.toList.sortBy(_._2)) {
       pplan.csp.stn.asInstanceOf[StnWithStructurals[GlobalRef]].forceExecutionTime(tp, time)
     }
@@ -289,6 +297,7 @@ class ActivityManager extends FSM[MState, MData] with MessageLogger {
       println(mergeObservation(obs, pplan))
     // make sure all additional actions cannot start in the past
     pplan.setEarliestExecution(Clock.time())
+    // return the resulting plan
     pplan
   }
 
