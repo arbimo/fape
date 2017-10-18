@@ -83,8 +83,16 @@ public class ROSUtils {
     public static double angleTowards(String agent, String target) {
         Pose p1 = Database.getPoseOf(agent);
         Pose p2 = Database.getPoseOf(target);
-        double deltaX = p2.getPosition().getX() -p1.getPosition().getX();
-        double deltaY = p2.getPosition().getY() -p1.getPosition().getY();
+        return angleTowards(p1, p2);
+    }
+
+    public static double angleTowards(Pose curr, Pose target) {
+        return angleTowards(curr.getPosition().getX(), curr.getPosition().getY(), target.getPosition().getX(), target.getPosition().getY());
+    }
+
+    public static double angleTowards(double x1, double y1, double x2, double y2) {
+        double deltaX = x2 -x1;
+        double deltaY = y2 -y1;
         return Math.atan2(deltaY, deltaX);
     }
 

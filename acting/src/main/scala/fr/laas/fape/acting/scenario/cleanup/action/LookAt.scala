@@ -1,7 +1,7 @@
 package fr.laas.fape.acting.scenario.cleanup.action
 
 import akka.actor.FSM
-import fr.laas.fape.acting.Clock
+import fr.laas.fape.acting.{Clock, Utils}
 import fr.laas.fape.acting.actors.patterns.MessageLogger
 import fr.laas.fape.acting.messages.{ExecutionRequest, TimepointExecuted}
 import fr.laas.fape.ros.ROSUtils
@@ -14,21 +14,21 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class LookAt(robot: String)  extends FSM[String,Option[ExecutionRequest]] with MessageLogger {
-
-
   startWith("idle", None)
 
   when("idle") {
     case Event(exe:ExecutionRequest, _) =>
       assert(exe.name == "LookAt")
-      Future {
+      Utils.Future {
         try {
           val bot :: target :: _ = exe.parameters
-          if (ROSUtils.dist(Database.getPoseOf(bot), Database.getPoseOf(target)) > 2.1) {
+          if (ROSUtils.dist(Database.getPoseOf(bot), Database.getPoseOf(target)) > 2.3) {
             log.error("To far from target")
             self ! "failure"
           } else {
             fr.laas.fape.ros.action.LootAt.lookAt(target)
+            Database.setBool("seen/"+target, true)
+            Thread.sleep(2000)
             self ! "success"
           }
         } catch {

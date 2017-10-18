@@ -14,9 +14,6 @@ object AAction {
   def unapply(a: AtomicAction) : Option[(ActRef, String, Seq[String], Int, Int, Int)] = Some(a.id, a.name, a.params.asScala.toList, a.mStartTime, a.minDuration, a.maxDuration)
 }
 
-
-
-
 sealed trait ObserverMessage
 object GetProblemFromScene extends ObserverMessage
 case class ProblemFromScene(anml: String) extends ObserverMessage

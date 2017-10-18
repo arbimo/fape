@@ -59,4 +59,12 @@ public class Attachments {
         else
             return Collections.emptyList();
     }
+
+    public static boolean isArmFree(String arm) {
+        for(String obj : attachedObjects()) {
+            if(getHoldingArm(obj).equals(arm))
+                return false;
+        }
+        return true;
+    }
 }

@@ -29,7 +29,7 @@ public class MoveTorsoActionServer {
         } catch (ActionFailure e) {
             throw e;
         } catch (Throwable e) {
-            throw new ActionFailure("MoveTorso: unexpected exception.");
+            throw new ActionFailure("MoveTorso: unexpected exception.", e);
         }
     }
 }

@@ -39,12 +39,12 @@ public abstract class GTPRequest {
         return ROSUtils.emptyMessageFromType(requestGoal._TYPE);
     }
 
-    public boolean send() throws ActionFailure {
+    public boolean plan() throws ActionFailure {
         assert result == null : "Action has already been executed.";
-        // attach all objects
-        if(!(this instanceof GTPAttachFromTask))
-            for(String attachedObject : Attachments.attachedObjects())
-                new GTPAttachFromTask(Attachments.getPickID(attachedObject)).send();
+        // attach all objects // TODO workaroud as we suppressed attached objects from toaster
+//        if(!(this instanceof GTPAttachFromTask))
+//            for(String attachedObject : Attachments.attachedObjects())
+//                new GTPAttachFromTask(Attachments.getPickID(attachedObject)).plan();
 
         result = GTP.getInstance().sendRequest(this);
         if(result.getAns().getSuccess())
@@ -62,7 +62,7 @@ public abstract class GTPRequest {
         if(details == null) {
             GTPDetails req = new GTPDetails(getActionID());
             try {
-                req.send();
+                req.plan();
             } catch (ActionFailure e) {
                 throw new RuntimeException("GetDetails failure", e);
             }
@@ -111,6 +111,6 @@ public abstract class GTPRequest {
         assert details != null;
         assert subtrajID < details.getAns().getSubTrajs().size();
         GTPLoad load = new GTPLoad(getActionID(), subtrajID);
-        load.send();
+        load.plan();
     }
 }

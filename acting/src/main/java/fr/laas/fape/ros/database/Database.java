@@ -10,29 +10,16 @@ import toaster_msgs.*;
 import java.lang.Object;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class Database {
 
-    private static class Property {
-        public final String property;
-        public final String param;
-        public Property(String prop, String param) {
-            this.property = prop;
-            this.param = param;
-        }
-        @Override
-        public int hashCode() { return property.hashCode() + param.hashCode(); }
-
-        @Override
-        public boolean equals(Object o) {
-            if(o instanceof Property)
-                return ((Property) o).property.equals(property) && ((Property) o).param.equals(param);
-            else
-                return false;
-        }
-    }
-
     private static Database instance;
+
+    public static final String root = "fape/";
 
     public static void initialize() {
         if(instance == null) {
@@ -44,16 +31,29 @@ public class Database {
         if(instance == null) {
             initialize();
         }
+        try {
+            // make sure we have received the first messages before returning the database
+            if(!instance.robotsCD.await(5, TimeUnit.SECONDS))
+                throw new RuntimeException("No robot in database after waiting for 5 seconds. Make sure toaster is running.");
+            if(!instance.objectsCD.await(5, TimeUnit.SECONDS))
+                throw new RuntimeException("No objects in database after waiting for 5 seconds. Make sure toaster is running.");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return instance;
     }
 
     private Map<String,DBEntry> db = new HashMap<>();
-    private Map<Property,Object> properties = new HashMap<>();
+
+    private final CountDownLatch robotsCD = new CountDownLatch(1);
+    private final CountDownLatch objectsCD = new CountDownLatch(1);
 
     private Database() {
         ConnectedNode node = ROSNode.getNode();
         Subscriber<RobotListStamped> robotsSub = node.newSubscriber("pdg/robotList", RobotListStamped._TYPE);
         robotsSub.addMessageListener(msg -> {
+            if(!msg.getRobotList().isEmpty())
+                robotsCD.countDown();
             for(toaster_msgs.Robot o : msg.getRobotList()) {
                 String id = o.getMeAgent().getMeEntity().getName();
                 Pose pose = o.getMeAgent().getMeEntity().getPose();
@@ -66,6 +66,8 @@ public class Database {
 
         Subscriber<ObjectListStamped> objectsSub = node.newSubscriber("pdg/objectList", ObjectListStamped._TYPE);
         objectsSub.addMessageListener(msg -> {
+            if(!msg.getObjectList().isEmpty())
+                objectsCD.countDown();
             for(toaster_msgs.Object o : msg.getObjectList()) {
                 String id = o.getMeEntity().getName();
                 Pose pose = o.getMeEntity().getPose();
@@ -75,19 +77,20 @@ public class Database {
                 db.get(id).pose = pose;
             }
         });
+
+//        if(ROSNode.getNode().getParameterTree().has(root+"seen"))
+//            ROSNode.getNode().getParameterTree().delete(root+"seen");
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private class DBEntry {
         geometry_msgs.Pose pose;
     }
-
-//    public static void set(String property, String param, Object value) {
-//        getInstance().properties.put(new Property(property, param), value);
-//    }
-
-//    public static String getString(String property, String param) {
-//        return (String) getInstance().properties.getOrDefault(new Property(property, param), null);
-//    }
 
     public static Pose getPoseOf(String object) {
         Database db = getInstance();
@@ -96,7 +99,13 @@ public class Database {
         return db.db.get(object).pose;
     }
 
-    public static final String root = "fape/";
+    public static Set<String> getObjects() {
+        return getInstance().db.keySet();
+    }
+
+    public static Set<String> getTables() {
+        return getInstance().db.keySet().stream().filter(o -> o.contains("TABLE")).collect(Collectors.toSet());
+    }
 
     public static void setInt(String param, int i) {
         ROSNode.getNode().getParameterTree().set(root+param, i);

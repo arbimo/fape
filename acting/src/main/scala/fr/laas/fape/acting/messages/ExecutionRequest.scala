@@ -10,4 +10,5 @@ class ExecutionRequest(val action: Action, val plan: State, val caller: ActorRef
 
   def name = action.name
   def parameters = action.args.asScala.map(a => plan.valuesOf(a).get(0).instance).toList
+
 }

@@ -1,8 +1,9 @@
 package fr.laas.fape.acting.messages
 
-/**
-  * Created by abitmonn on 11/24/16.
-  */
-class Observation {
+import fr.laas.fape.anml.model.ParameterizedStateVariable
+import fr.laas.fape.anml.model.concrete.InstanceRef
+
+
+case class Observation(sv: ParameterizedStateVariable, value: InstanceRef, time: Int) {
 
 }

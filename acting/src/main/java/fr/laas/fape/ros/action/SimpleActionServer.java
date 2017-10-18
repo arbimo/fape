@@ -79,11 +79,11 @@ public class SimpleActionServer<T_ActionGoal extends Message, T_ActionFeedback e
 
         // wait for at most 5 seconds for the results, otherwise exit
         try {
-            if(countDown.await(300L, TimeUnit.SECONDS)) {
+            if(countDown.await(10L, TimeUnit.MINUTES)) {
 //                System.out.println("Received answer:\n"+ROSUtils.format((Message) result[0]));
                 return (T_ActionResult) result[0];
             } else {
-                throw new RuntimeException("Did not receive any answer after waiting for 5 minutes");
+                throw new RuntimeException("Did not receive any answer after waiting for 10 minutes");
             }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);

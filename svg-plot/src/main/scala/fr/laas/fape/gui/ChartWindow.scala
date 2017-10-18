@@ -28,6 +28,7 @@ class ChartWindow(title: String) {
 
     val reader = new StringReader(chart.draw.toString())
 
+
     val parser = XMLResourceDescriptor.getXMLParserClassName
     val f:SAXSVGDocumentFactory = new SAXSVGDocumentFactory(parser)
     val svgDoc = f.createSVGDocument("file:///tmp/tmp.svg", reader)

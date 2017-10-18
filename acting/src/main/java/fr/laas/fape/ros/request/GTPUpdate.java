@@ -15,7 +15,7 @@ public class GTPUpdate extends GTPRequest {
 
     public static void update() {
         try {
-            new GTPUpdate().send();
+            new GTPUpdate().plan();
         } catch (ActionFailure fail) {
             throw new RuntimeException("GTPUpdate failure", fail);
         }

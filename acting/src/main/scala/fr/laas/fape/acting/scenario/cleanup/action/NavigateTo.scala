@@ -61,7 +61,7 @@ class NavigateTo(robot: String)  extends FSM[String,MData] with MessageLogger {
       val startNavTP = req.action.context.getTimepoint("nav")
       req.caller ! TimepointExecuted(startNavTP, Clock.time())
       Future {
-        MoveBaseClient.sendGoTo(pose.getX, pose.getY, pose.getZ)
+        MoveBaseClient.sendGoTo(pose.getX, pose.getY, pose.getZ) //TODO
         self ! "target-reached"
       }
   }
@@ -93,17 +93,22 @@ class NavigateTo(robot: String)  extends FSM[String,MData] with MessageLogger {
   def lookUpTargetPose(req: ExecutionRequest): Unit = {
     assert(req.name == "NavigateTo")
     val container = req.plan.taskNet.getContainingAction(req.action)
-    assert(container != null && container.name.contains("GoPick"))
-    val obj = Utils.asString(container.args.get(1), req.plan)
+    val (obj,dist) =
+      if(container.name.contains("GoPick"))
+        (Utils.asString(container.args.get(1), req.plan), GoToPick.PICK_DISTANCE)
+      else if(container.name.contains("GoPlace"))
+        (Utils.asString(container.args.get(2), req.plan), GoToPick.PLACE_DISTANCE)
+      else
+        throw new ActionFailure("Navigate to is not part of another action")
     Future {
       try {
         val bot :: table :: _ = req.parameters
-        val angle = GoToPick.getFeasibleApproach(bot, obj, GoToPick.PICK_DISTANCE)
+        val angle = GoToPick.getFeasibleApproach(bot, obj, dist)
         val targetObjectPose = MessageFactory.getXYYawFromPose(Database.getPoseOf(obj))
         if(angle == null)
           throw new ActionFailure("GoToPick: no possible approaches to "+obj)
 
-        val preManipPose = angle.getApproachPose(targetObjectPose, GoToPick.PICK_DISTANCE+GoToPick.ENGAGE_DIST)
+        val preManipPose = angle.getApproachPose(targetObjectPose, dist+GoToPick.ENGAGE_DIST)
         log.info("Got pose")
         self ! preManipPose
       } catch {

@@ -14,14 +14,14 @@ public class CourseCorrection {
     private final double[] cov = {0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.06853891945200942 };
 
     private long lastCorrection = 0;
-    private long correctionPeriod = 100;
+    private long correctionPeriod = 1000;
 
-    public boolean ACTIVE = true;
+    public final boolean ACTIVE = true;
     public static void setSlowCorrection() {
-        getInstance().correctionPeriod =1000;
+        getInstance().correctionPeriod = 10000;
     }
     public static void setFastCorrection() {
-        getInstance().correctionPeriod = 50;
+        getInstance().correctionPeriod = 1000;
     }
 
     public static CourseCorrection getInstance() {

@@ -35,7 +35,6 @@ public class GTPNavigateTo extends GTPRequest {
 
     @Override
     public requestGoal asActionGoal() {
-        assert target != null;
         requestGoal goal = GTPRequest.emptyGoal();
         goal.getReq().setRequestType("planning");
         goal.getReq().setActionName("navigateTo");

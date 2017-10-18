@@ -1,6 +1,5 @@
 package fr.laas.fape.ros.action;
 
-import fr.laas.fape.ros.MainTesting;
 import fr.laas.fape.ros.ROSUtils;
 import fr.laas.fape.ros.database.Database;
 import fr.laas.fape.ros.exception.ActionFailure;
@@ -17,7 +16,7 @@ import static fr.laas.fape.ros.ROSUtils.dist;
 public class GoToPick {
 
     public static double ENGAGE_DIST = 0.5;
-    public static double PICK_DISTANCE = 0.65;
+    public static double PICK_DISTANCE = 0.55;
     public static double PLACE_DISTANCE = 0.85;
     public static int NUM_APPROACHES = 12;
 
@@ -31,13 +30,13 @@ public class GoToPick {
         Pt preManipPose = angle.getApproachPose(targetObjectPose, PICK_DISTANCE+ENGAGE_DIST);
         MoveBaseClient.sendGoTo(preManipPose.getX(), preManipPose.getY(), preManipPose.getZ());
 
-        engage(agent, targetObject, angle);
+        engage();
         GTPUpdate.update();
         GTPPick pick = new GTPPick(agent, targetObject);
-        pick.send();
+        pick.plan();
         pick.execute();
 
-        disengage(agent);
+        disengage();
     }
 
     public static void goToPlace(String agent, String targetObject, String targetSurface) throws ActionFailure {
@@ -50,22 +49,22 @@ public class GoToPick {
         Pt preManipPose = angle.getApproachPose(targetObjectPose, PLACE_DISTANCE+ENGAGE_DIST);
         MoveBaseClient.sendGoTo(preManipPose.getX(), preManipPose.getY(), preManipPose.getZ());
 
-        engage(agent, targetObject, angle);
+        engage();
         GTPUpdate.update();
         GTPPlace place = new GTPPlace(agent, targetObject, targetSurface);
-        place.send();
+        place.plan();
         place.execute();
 
-        disengage(agent);
+        disengage();
     }
 
-    public static void engage(String agent, String targetObject, ApproachAngle approach) throws ActionFailure {
+    public static void engage() throws ActionFailure {
         MoveArmToQ.moveRightToManipulationPose();
         MoveArmToQ.moveLeftToManipulationPose();
         MoveBlind.moveForward(ENGAGE_DIST);
     }
 
-    public static void disengage(String agent) throws ActionFailure {
+    public static void disengage() throws ActionFailure {
         MoveBlind.moveBackward(ENGAGE_DIST);
     }
 
@@ -74,7 +73,7 @@ public class GoToPick {
         Pt targetPt = MessageFactory.getXYYawFromPose(Database.getPoseOf(targetObject));
 
         try {
-            new GTPUpdate().send();
+            new GTPUpdate().plan();
         } catch (ActionFailure e) {
             throw new RuntimeException("Failed to send a GTP update");
         }
@@ -88,8 +87,9 @@ public class GoToPick {
         ApproachAngle bestFeasible = null;
         for(ApproachAngle a : candidateApproaches) {
             try {
+                GTPUpdate.update();
                 GTPNavigateTo nav = new GTPNavigateTo("PR2_ROBOT", getManipulationPose(targetPt, a, distance));
-                nav.send();
+                nav.plan();
                 // if we got here, then GTP found a way to navigate to this point
                 bestFeasible = a;
                 break;

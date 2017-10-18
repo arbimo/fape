@@ -39,7 +39,7 @@ public class GripperOperator {
             Gripper_Left_OperateGoal goal = ROSUtils.emptyMessageFromType("pr2motion/Gripper_Left_OperateGoal");
             goal.getGoalMode().setValue(operation);
             boolean res = leftActioner.sendGoal(goal).getResult().getGenomSuccess();
-            ROSUtils.sleep(12000); // magic number to wait that the gripper be close enough
+            ROSUtils.sleep(5000); // magic number to wait that the gripper be close enough
             if(operation == GRIPPER_OPEN)
                 Attachments.attachedObjects().stream()
                         .filter(o -> Attachments.getHoldingArm(o).equals(side))
@@ -50,7 +50,7 @@ public class GripperOperator {
             Gripper_Right_OperateGoal goal = ROSUtils.emptyMessageFromType("pr2motion/Gripper_Right_OperateGoal");
             goal.getGoalMode().setValue(operation);
             boolean res = rightActioner.sendGoal(goal).getResult().getGenomSuccess();
-            ROSUtils.sleep(12000);
+            ROSUtils.sleep(5000);
             if(operation == GRIPPER_OPEN)
                 Attachments.attachedObjects().stream()
                         .filter(o -> Attachments.getHoldingArm(o).equals(side))

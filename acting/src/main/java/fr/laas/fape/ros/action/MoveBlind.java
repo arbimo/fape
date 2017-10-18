@@ -9,6 +9,7 @@ import fr.laas.fape.ros.message.MessageFactory;
 import geometry_msgs.Pose;
 import geometry_msgs.Twist;
 import org.ros.node.topic.Publisher;
+import static java.lang.Math.PI;
 
 public class MoveBlind {
 
@@ -53,13 +54,20 @@ public class MoveBlind {
         }
     }
 
+    private static double mod(double angle) {
+        if(angle % (2*PI) < 0)
+            return angle % (2*PI) + 2*PI;
+        else
+            return angle % (2*PI);
+    }
+
     public static void turnTowards(double angle) throws ActionFailure {
         long startTime = System.currentTimeMillis();
 
         while (startTime > getInstance().expirationLimit) {
             double current = MessageFactory.getXYYawFromPose(Database.getPoseOf("PR2_ROBOT")).getZ();
             Twist cmd = ROSUtils.emptyMessageFromType("geometry_msgs/Twist");
-            double diff = angle - current;
+            double diff = mod(angle - current +PI) - PI;
             if(Math.abs(diff) < 0.1)
                 break; // target angle reached
             double speed;
@@ -68,7 +76,7 @@ public class MoveBlind {
             else
                 speed = 1;
 
-            if (angle > 0)
+            if (diff > 0)
                 cmd.getAngular().setZ(speed);
             else
                 cmd.getAngular().setZ(-speed);

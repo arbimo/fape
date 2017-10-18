@@ -55,6 +55,7 @@ class AnmlProblem extends TemporalInterval with ChronicleContainer {
    * is provided here mainly for consistency in the planner implementation. It is the responsability of the
    * planner to enforce the ordering between this time-point and the actions in the plan.
    */
+  @Deprecated
   val earliestExecution : TPRef = new TPRef(refCounter)
   override val start: TPRef = new TPRef(refCounter)
   override val end: TPRef = new TPRef(refCounter)

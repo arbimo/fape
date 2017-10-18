@@ -22,7 +22,7 @@ class TimedCanvas(val lines: Iterable[ChartLine], currentTime:Option[Float] = No
   val width = 650
 
   val maxX =
-    if(lines.nonEmpty) lines.flatMap(_.elements).map(_.maxX).max
+    if(lines.nonEmpty) lines.flatMap(_.elements).map(_.maxX).filter(x => x < 9999999).max
     else 10 // no lines do display
 
   val lineHeight : Float = height / numLines * 0.66f
@@ -47,7 +47,7 @@ class TimedCanvas(val lines: Iterable[ChartLine], currentTime:Option[Float] = No
       <style type="text/css" >
           <![CDATA[
           rect.pending { fill:   #000000; }
-          rect.uncertain { fill:   #bbbbbb; }
+          rect.uncertain { fill:   #888888; }
           rect.successful { fill: #00AA00; }
           rect.failed { fill: #AA0000; }
           rect.sv-value { fill: #BBBBBB; }
@@ -59,7 +59,7 @@ class TimedCanvas(val lines: Iterable[ChartLine], currentTime:Option[Float] = No
         ]]>
         </style>
       { // time grid: Below
-        (0 to maxX.toInt+5).filter(_ % 5 == 0).map(x =>
+        (0 to maxX.toInt+5).filter(_ % 5000 == 0).map(x =>
           <line x1={xProj(x)} y1={0} x2={xProj(x)} y2={yOfLine(numLines-1)} class="grid"/>
           <text x={xProj(x)} y={yOfLine(numLines-1)+lineHeight} class="time-label" style="text-anchor: middle" font-size={"12px"}>{x}</text>
         )

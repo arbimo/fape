@@ -4,15 +4,26 @@ import com.sun.org.apache.xpath.internal.operations.VariableSafeAbsRef
 import fr.laas.fape.anml.model.AnmlProblem
 import fr.laas.fape.anml.model.concrete._
 import fr.laas.fape.anml.model.concrete.statements.Persistence
+import fr.laas.fape.gui.{ChartWindow, TimedCanvas}
+import fr.laas.fape.planning.core.planning.planner.PlanningOptions
+import fr.laas.fape.planning.core.planning.search.flaws.finders.NeededObservationsFinder
 import fr.laas.fape.planning.core.planning.states.State
 import fr.laas.fape.planning.core.planning.states.modification.ChronicleInsertion
 
-/**
-  * Created by abitmonn on 11/23/16.
-  */
+import scala.concurrent.ExecutionContext.Implicits.global
+
 object Utils {
 
   private var problem : AnmlProblem = null
+
+  def options = {
+    val opt = new PlanningOptions()
+    opt.displaySearch = false
+    opt
+  }
+
+  lazy val chartWindow = new ChartWindow("Actions")
+
 
   def setProblem(file: String): Unit = {
     problem = new AnmlProblem()
@@ -52,5 +63,17 @@ object Utils {
 
   def asString(variable: VarRef, plan: State) = {
     plan.domainOf(variable).get(0)
+  }
+
+  def Future[T](body: => T) = {
+    concurrent.Future {
+      try {
+        body
+      } catch {
+        case e: Throwable =>
+          e.printStackTrace()
+          null
+      }
+    }
   }
 }

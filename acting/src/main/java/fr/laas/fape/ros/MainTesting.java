@@ -3,6 +3,9 @@ package fr.laas.fape.ros;
 import fr.laas.fape.ros.action.*;
 import fr.laas.fape.ros.database.Attachments;
 import fr.laas.fape.ros.database.Database;
+import fr.laas.fape.ros.request.GTPNavigateTo;
+import fr.laas.fape.ros.request.GTPPick;
+import fr.laas.fape.ros.request.GTPUpdate;
 import fr.laas.fape.ros.sensing.CourseCorrection;
 
 
@@ -17,14 +20,28 @@ public class MainTesting {
     public static void main(String[] argv)  {
         try {
             Database.initialize();
-            CourseCorrection.spin();
-            MoveTorsoActionServer.moveTorso(0.3f);
-            ROSUtils.sleep(1000); // wait for initial population of database
+            ROSUtils.sleep(1500);
+//            CourseCorrection.spin();
+//            MoveTorsoActionServer.moveTorso(0.3f);
 
+            LootAt.lookAt("TABLE_1");
 
-            MoveBlind.turnTowards(ROSUtils.angleTowards("PR2_ROBOT","GREY_TAPE_1"));
+//            MoveBlind.moveForward(0.7);
+//            MoveBlind.turnTowards(-Math.PI/4);
+//            MoveBlind.turnTowards(ROSUtils.angleTowards("PR2_ROBOT","GREY_TAPE_2"));
 
 //            MoveBlind.moveBackward(1);
+//            MoveBlind.turnTowards(Math.PI/4);
+//            MoveBlind.moveForward(2);
+//            GTPUpdate.update();
+//            GTPPick pick = new GTPPick("PR2_ROBOT","GREY_TAPE");
+//            pick.plan();
+//            pick.execute();
+//
+//            while(true)
+//                GTPUpdate.update();
+
+//            new GTPNavigateTo("PR2_ROBOT", 3.,3., 0.).plan();
 //            show(MoveBaseClient.sendGoTo(1, 1, 0));
 //            Attachments.clearAllAttachments();
 //            GripperOperator.openGripper("right");
@@ -46,7 +63,7 @@ public class MainTesting {
 //            GripperOperator.openGripper("left");
 
 //            LootAt.lookAt("TABLE_0");
-            System.out.println(Attachments.attachedObjects());
+//            System.out.println(Attachments.attachedObjects());
 
 //            GTPUpdate.update();
 //            GTPPlace place = new GTPPlace(AGENT, "GREY_TAPE_0", "TABLE_0");

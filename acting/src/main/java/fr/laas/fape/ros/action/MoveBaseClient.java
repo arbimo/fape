@@ -1,6 +1,7 @@
 package fr.laas.fape.ros.action;
 
 import fr.laas.fape.ros.ROSUtils;
+import fr.laas.fape.ros.database.Database;
 import fr.laas.fape.ros.exception.ActionFailure;
 import fr.laas.fape.ros.message.MessageFactory;
 import geometry_msgs.Pose;
@@ -29,9 +30,10 @@ public class MoveBaseClient {
         getInstance().client.cancelPreviousGoals();
     }
 
-    public static MoveBaseResult sendGoTo(Pose pose) throws ActionFailure {
+    private static MoveBaseResult sendGoTo(Pose pose) throws ActionFailure {
         CourseCorrection.setSlowCorrection(); // slow down course correction since it makes the navigation jumpy
         try {
+            MoveBlind.turnTowards(ROSUtils.angleTowards(Database.getPoseOf("PR2_ROBOT"), pose));
             MoveBaseActionGoal g = getInstance().client.newGoalMessage();
             g.getGoal().getTargetPose().getHeader().setFrameId("map");
             g.getGoal().getTargetPose().setPose(pose);
