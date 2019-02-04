@@ -5,4 +5,6 @@ public interface Identifiable {
     void setID(int i);
     int getID();
 
+    Desc descriptor();
+
 }

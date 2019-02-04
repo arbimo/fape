@@ -1,6 +1,7 @@
 package fr.laas.fape.planning.core.planning.reachability;
 
 import fr.laas.fape.structures.AbsIdentifiable;
+import fr.laas.fape.structures.Desc;
 import fr.laas.fape.structures.Ident;
 import fr.laas.fape.structures.ValueConstructor;
 import lombok.Getter;
@@ -15,7 +16,9 @@ public interface ReachabilityGraph {
     static boolean isInfty(int num) { return num > 9999999; }
 
     @Ident(Node.class)
-    abstract class Node extends AbsIdentifiable {}
+    abstract class Node extends AbsIdentifiable {
+        static Desc<Node> desc = Desc.getAbstract(Node.class);
+    }
     abstract class ActionNode extends Node {
         public abstract List<TempFluent> getConditions();
         public abstract List<TempFluent> getEffects();
@@ -23,7 +26,10 @@ public interface ReachabilityGraph {
 
     @Getter
     @Ident(Node.class)
-    class FactAction extends ActionNode {
+    static class FactAction extends ActionNode {
+        public static Desc<FactAction> desc = Desc.get(FactAction.class);
+        public Desc descriptor() { return desc; }
+
         public final List<TempFluent> effects;
 
         @ValueConstructor

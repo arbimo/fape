@@ -19,26 +19,27 @@ import java.util.List;
 public class GroundObjectsStore extends IRStorage {
 
     public ElementaryAction getRAct(GAction act, AbsTP tp, List<TempFluent> conditions, List<TempFluent> effects) {
-        return (ElementaryAction) this.get(ElementaryAction.class, Arrays.asList(act, tp, conditions, effects));
+        return (ElementaryAction) this.get(ElementaryAction.desc, Arrays.asList(act, tp, conditions, effects));
     }
 
     public ReachabilityGraph.FactAction getFactAction(List<TempFluent> facts) {
-        return (ReachabilityGraph.FactAction) this.get(ReachabilityGraph.FactAction.class, Collections.singletonList(facts));
+        return (ReachabilityGraph.FactAction) this.get(ReachabilityGraph.FactAction.desc, Collections.singletonList(facts));
     }
 
     public GTask getTask(String name, List<InstanceRef> args) {
-        return (GTask) this.get(GTask.class, Arrays.asList(name, args));
+        return (GTask) this.get(GTask.desc, Arrays.asList(name, args));
     }
 
     public Fluent getFluent(GStateVariable sv, InstanceRef value) {
-        return (Fluent) this.get(Fluent.class, Arrays.asList(sv, value));
+        return (Fluent) this.get(Fluent.desc, Arrays.asList(sv, value));
     }
 
     public Fluent getFluentByID(int fluentID) {
-        return (Fluent) this.get(Fluent.class, fluentID);
+        return (Fluent) this.get(Fluent.desc, fluentID);
     }
 
     public GStateVariable getGStateVariable(Function f, List<InstanceRef> vars) {
-        return (GStateVariable) this.get(GStateVariable.class, Arrays.asList(f, vars));
+        new GStateVariable(null, null);
+        return (GStateVariable) this.get(GStateVariable.desc, Arrays.asList(f, vars));
     }
 }

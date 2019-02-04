@@ -39,7 +39,7 @@ public class CoreReachabilityGraph implements ReachabilityGraph {
     }
 
     public IR2IntMap<Node> getDefaultEarliestApprearances() {
-        IR2IntMap<Node> eas = new IR2IntMap<Node>(store.getIntRep(Node.class));
+        IR2IntMap<Node> eas = new IR2IntMap<Node>(store.getIntRep(Node.desc));
         for(TempFluent.DGFluent f : fluentIn.keySet())
             eas.put(f.getID(), 0);
         for(ActionNode act : actIn.keySet())
@@ -87,7 +87,7 @@ public class CoreReachabilityGraph implements ReachabilityGraph {
 
     protected IRSet<TempFluent.DGFluent> getFluentsWithIncomingNegEdge() {
         if(nodesWithIncomingNegEdge == null) {
-            nodesWithIncomingNegEdge = new IRSet<>(store.getIntRep(TempFluent.DGFluent.class));
+            nodesWithIncomingNegEdge = new IRSet<>(store.getIntRep(TempFluent.DGFluent.desc));
 
             for (TempFluent.DGFluent f : fluentIn.keySet()) {
                 for (MinEdge e : inEdges(f)) {

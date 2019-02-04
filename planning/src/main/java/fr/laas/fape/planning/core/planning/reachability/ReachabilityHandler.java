@@ -133,7 +133,7 @@ public class ReachabilityHandler extends Handler {
     }
 
     private void propagateNetwork(PartialPlan st, Planner pl) {
-        final IntRep<GAction> gactsRep = pl.preprocessor.store.getIntRep(GAction.class);
+        final IntRep<GAction> gactsRep = pl.preprocessor.store.getIntRep(GAction.desc);
 
         CoreReachabilityGraph.StateExt ext = st.getExtension(CoreReachabilityGraph.StateExt.class);
 
@@ -176,7 +176,7 @@ public class ReachabilityHandler extends Handler {
         graph.propagate(ext.prevGraph);
 
         if(!pp.fluentsInitialized()) {
-            IRSet<Fluent> fluents = new IRSet<>(pp.store.getIntRep(Fluent.class));
+            IRSet<Fluent> fluents = new IRSet<>(pp.store.getIntRep(Fluent.desc));
             for(Fluent f : graph.fluentsEAs.keys())
                 fluents.add(f);
             pp.setPossibleFluents(fluents);

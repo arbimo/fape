@@ -62,7 +62,7 @@ public class MinSpanTreeExtFull implements StateExtension {
     public MinSpanTreeExtFull(PartialPlan st) {
         this.st = st;
         allCosts = new HashMap<>();
-        fluentRep = st.pl.preprocessor.store.getIntRep(Fluent.class);
+        fluentRep = st.pl.preprocessor.store.getIntRep(Fluent.desc);
         workingCopy1 = new IRSet<Fluent>(fluentRep);
         workingCopy2 = new IRSet<Fluent>(fluentRep);
     }
@@ -70,7 +70,7 @@ public class MinSpanTreeExtFull implements StateExtension {
     public MinSpanTreeExtFull(PartialPlan st, MinSpanTreeExtFull toCopy) {
         this.st = st;
         this.allCosts = new HashMap<>(toCopy.allCosts);
-        fluentRep = st.pl.preprocessor.store.getIntRep(Fluent.class);
+        fluentRep = st.pl.preprocessor.store.getIntRep(Fluent.desc);
         workingCopy1 = new IRSet<Fluent>(fluentRep);
         workingCopy2 = new IRSet<Fluent>(fluentRep);
     }
@@ -396,7 +396,7 @@ public class MinSpanTreeExtFull implements StateExtension {
         return st.pl.preprocessor.getFluent(s.sv, s.startValue());
     }
     private IRSet<Fluent> startFluents(LogStatement s) {
-        IRSet<Fluent> fs = new IRSet<>(st.pl.preprocessor.store.getIntRep(Fluent.class));
+        IRSet<Fluent> fs = new IRSet<>(st.pl.preprocessor.store.getIntRep(Fluent.desc));
         getGrounded(s).stream().forEach(gs -> fs.add(startFluent(gs)));
         return fs;
     }

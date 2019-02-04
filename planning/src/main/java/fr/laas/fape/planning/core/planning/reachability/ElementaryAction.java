@@ -3,6 +3,7 @@ package fr.laas.fape.planning.core.planning.reachability;
 import fr.laas.fape.anml.model.abs.time.AbsTP;
 import fr.laas.fape.planning.core.planning.grounding.GAction;
 import fr.laas.fape.planning.core.planning.planner.Planner;
+import fr.laas.fape.structures.Desc;
 import fr.laas.fape.structures.Ident;
 import fr.laas.fape.structures.ValueConstructor;
 import lombok.Getter;
@@ -12,6 +13,8 @@ import java.util.stream.Collectors;
 
 @Ident(CoreReachabilityGraph.Node.class) @Getter
 public class ElementaryAction extends CoreReachabilityGraph.ActionNode {
+    public static Desc<ElementaryAction> desc = Desc.get(ElementaryAction.class);
+    public Desc descriptor() { return desc; }
 
     public final GAction act;
     public final AbsTP tp;

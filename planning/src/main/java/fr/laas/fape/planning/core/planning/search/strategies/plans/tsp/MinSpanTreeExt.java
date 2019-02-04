@@ -103,7 +103,7 @@ public class MinSpanTreeExt implements StateExtension {
             for(LogStatement s : restricted) {
                 Optional<Action> optAct = st.getActionContaining(s);
                 if(optAct.isPresent()) {
-                    IRSet<GAction> allowed = new IRSet<>(st.pl.preprocessor.store.getIntRep(GAction.class));
+                    IRSet<GAction> allowed = new IRSet<>(st.pl.preprocessor.store.getIntRep(GAction.desc));
                     for(GLogStatement gs : getGrounded(s))
                         allowed.add(gs.container.get());
                     Domain dom = new Domain(allowed.toBitSet());
@@ -129,7 +129,7 @@ public class MinSpanTreeExt implements StateExtension {
 
         for(Timeline og : st.tdb.getConsumers()) {
             int minDist = Integer.MAX_VALUE;
-            IRSet<Fluent> potentialSupport = new IRSet<>(st.pl.preprocessor.store.getIntRep(Fluent.class));
+            IRSet<Fluent> potentialSupport = new IRSet<>(st.pl.preprocessor.store.getIntRep(Fluent.desc));
             for(CausalNetworkExt.Event e : cn.getPotentialIndirectSupporters(og)) {
                 potentialSupport.addAll(endFluents(e.getStatement()));
             }
@@ -156,7 +156,7 @@ public class MinSpanTreeExt implements StateExtension {
         Preprocessor pp = st.pl.preprocessor;
         Set<GStateVariable> svs = targets.stream().map(f -> f.sv).collect(Collectors.toSet());
 
-        IDijkstraQueue<TemporalDTG.Node> q = new IDijkstraQueue<>(pp.store.getIntRep(TemporalDTG.Node.class));
+        IDijkstraQueue<TemporalDTG.Node> q = new IDijkstraQueue<>(pp.store.getIntRep(TemporalDTG.nodeDesc));
 
         for(Fluent f : targets) {
             if(potentialSupporters.contains(f))
@@ -210,12 +210,12 @@ public class MinSpanTreeExt implements StateExtension {
         return st.pl.preprocessor.getFluent(s.sv, s.endValue());
     }
     private Set<Fluent> startFluents(LogStatement s) {
-        IRSet<Fluent> fs =new IRSet<>(st.pl.preprocessor.store.getIntRep(Fluent.class));
+        IRSet<Fluent> fs =new IRSet<>(st.pl.preprocessor.store.getIntRep(Fluent.desc));
         getGrounded(s).stream().forEach(gs -> fs.add(startFluent(gs)));
         return fs;
     }
     private Set<Fluent> endFluents(LogStatement s) {
-        IRSet<Fluent> fs =new IRSet<>(st.pl.preprocessor.store.getIntRep(Fluent.class));
+        IRSet<Fluent> fs =new IRSet<>(st.pl.preprocessor.store.getIntRep(Fluent.desc));
         getGrounded(s).stream().forEach(gs -> fs.add(endFluent(gs)));
         return fs;
     }

@@ -6,6 +6,7 @@ import fr.laas.fape.planning.core.planning.grounding.GAction;
 import fr.laas.fape.planning.core.planning.grounding.GAction.GLogStatement;
 import fr.laas.fape.planning.core.planning.grounding.GStateVariable;
 import fr.laas.fape.planning.core.planning.planner.Planner;
+import fr.laas.fape.structures.Desc;
 import fr.laas.fape.structures.Ident;
 import fr.laas.fape.structures.Identifiable;
 import lombok.AllArgsConstructor;
@@ -24,8 +25,12 @@ public class TemporalDTG {
     private boolean postProcessed = false;
     private int numNodes = 0;
 
+    public static Desc<Node> nodeDesc = Desc.getAbstract(Node.class);
+
     @Getter @Ident(Node.class)
     public class Node implements Identifiable {
+        public Desc descriptor() { return nodeDesc; }
+
         public Node(Fluent fluent, int minStay, int maxStay, boolean isChangePossible) {
             this.fluent = fluent;
             this.minStay = minStay;

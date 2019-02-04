@@ -13,6 +13,7 @@ import fr.laas.fape.planning.core.planning.planner.Planner;
 import fr.laas.fape.planning.exceptions.FAPEException;
 import fr.laas.fape.planning.exceptions.NotValidGroundAction;
 import fr.laas.fape.planning.util.Pair;
+import fr.laas.fape.structures.Desc;
 import fr.laas.fape.structures.Ident;
 import fr.laas.fape.structures.Identifiable;
 import lombok.Getter;
@@ -24,6 +25,8 @@ import java.util.stream.Collectors;
 @Ident(GAction.class)
 public class GAction implements Identifiable {
 
+    public static Desc<GAction> desc = Desc.getAbstract(GAction.class);
+    public Desc descriptor() { return desc; }
 
 
     public static abstract class GLogStatement {

@@ -2,12 +2,20 @@ package fr.laas.fape.planning.core.planning.grounding;
 
 import fr.laas.fape.anml.model.concrete.InstanceRef;
 import fr.laas.fape.structures.AbsIdentifiable;
+import fr.laas.fape.structures.Desc;
 import fr.laas.fape.structures.Ident;
 import fr.laas.fape.structures.ValueConstructor;
 
 
 @Ident(Fluent.class)
 public final class Fluent extends AbsIdentifiable {
+    public static Desc<Fluent> desc = Desc.get(Fluent.class);
+
+    @Override
+    public Desc descriptor() {
+        return desc;
+    }
+
     final public GStateVariable sv;
     final public InstanceRef value;
 

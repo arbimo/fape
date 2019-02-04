@@ -906,7 +906,7 @@ public class PartialPlan implements Reporter {
     public IRSet<GAction> getGroundActions(Action lifted) {
         assert csp.bindings().isRecorded(lifted.instantiationVar());
         Domain dom = csp.bindings().rawDomain(lifted.instantiationVar());
-        return new IRSet<>(pl.preprocessor.store.getIntRep(GAction.class), dom.toBitSet());
+        return new IRSet<>(pl.preprocessor.store.getIntRep(GAction.desc), dom.toBitSet());
     }
 
     /** Returns all ground versions of this statements */

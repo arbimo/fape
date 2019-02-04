@@ -19,10 +19,10 @@ public class DTGRoutePlanner implements TSPRoutePlanner {
     public Result getPlan(Collection<Fluent> targets, PartialState ps, PartialPlan st) {
         Preprocessor pp = st.pl.preprocessor;
 
-        IDijkstraQueue<Fluent> q = new IDijkstraQueue<>(pp.store.getIntRep(Fluent.class));
+        IDijkstraQueue<Fluent> q = new IDijkstraQueue<>(pp.store.getIntRep(Fluent.desc));
         Map<Fluent, GLogStatement> predecessors = new HashMap<>();
 
-        for(GStateVariable sv : pp.store.getInstances(GStateVariable.class)) {
+        for(GStateVariable sv : pp.store.getInstances(GStateVariable.desc)) {
             int baseTime = -1;
             if(ps.labels.containsKey(sv)) {
                 PartialState.Label l = ps.latestLabel(sv);

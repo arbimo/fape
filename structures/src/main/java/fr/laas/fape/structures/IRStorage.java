@@ -2,24 +2,24 @@ package fr.laas.fape.structures;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class IRStorage {
 
+
     Map<Class, Map<List<Object>, Identifiable>> instancesByParams = new HashMap<>();
     Map<Class, ArrayList<Identifiable>> instances = new HashMap<>();
 
-    protected static Class getIdentClass(Class clazz) {
-        assert clazz.getAnnotation(Ident.class) != null : clazz.toString()+" has no Ident annotation.";
-        return ((Ident) clazz.getAnnotation(Ident.class)).value();
-    }
 
-    public Object get(Class clazz, List<Object> params) {
+
+    public Object get(Desc desc, List<Object> params) {
         try {
-            final Class identClazz = getIdentClass(clazz);
+            final Class identClazz = desc.ident;
 
-            List<Object> paramsAndClass = new ImmutableList<>(params, clazz);
+            List<Object> paramsAndClass = new ImmutableList<>(params, desc.described);
 
             instancesByParams.computeIfAbsent(identClazz, x -> new HashMap<>());
             instances.computeIfAbsent(identClazz, x -> new ArrayList<>());
@@ -29,17 +29,11 @@ public class IRStorage {
             }
 
             else {
-                Constructor c = null;
-                for(Constructor candidate : clazz.getDeclaredConstructors()) {
-                    if(candidate.getAnnotationsByType(ValueConstructor.class).length > 0) {
-                        if(c != null)
-                            throw new RuntimeException("Two annotated constructors on class: "+clazz.getName());
-                        c = candidate;
-                    }
+                Function<Object[], Identifiable> ctor = desc.ctor;
+                if(ctor == null) {
+                    throw new RuntimeException("Class "+desc.described+ " is not recorded statically");
                 }
-                if(c == null)
-                    throw new RuntimeException("No constructor annotated with @ValueConstructor in class: "+clazz.getName());
-                Identifiable n = (Identifiable) c.newInstance(params.toArray());
+                Identifiable n = ctor.apply(params.toArray());
                 n.setID(instances.get(identClazz).size());
                 instances.get(identClazz).add(n);
                 instancesByParams.get(identClazz).put(paramsAndClass, n);
@@ -51,21 +45,21 @@ public class IRStorage {
         }
     }
 
-    public Identifiable get(Class clazz, int id) {
+    public Identifiable get(Desc desc, int id) {
         try {
-            return instances.get(getIdentClass(clazz)).get(id);
+            return instances.get(desc.ident).get(id);
         } catch (IndexOutOfBoundsException e) {
-            throw new NoSuchElementException("No instance of class "+clazz.getName()+" with ID: "+id);
+            throw new NoSuchElementException("No instance of class "+desc.described.getName()+" with ID: "+id);
         }
     }
 
-    public int getHigherID(Class clazz) {
-        return instances.get(getIdentClass(clazz)).size();
+    public int getHigherID(Desc desc) {
+        return instances.get(desc.ident).size();
     }
 
     public void record(Identifiable o) {
         assert o.getID() >= 0;
-        Class identClazz = getIdentClass(o.getClass());
+        Class identClazz = o.descriptor().ident;
         instances.putIfAbsent(identClazz, new ArrayList<>(50));
         ArrayList<Identifiable> allVals = instances.get(identClazz);
         while(allVals.size() <= 1+o.getID())
@@ -74,8 +68,8 @@ public class IRStorage {
         allVals.set(o.getID(), o);
     }
 
-    public <T extends Identifiable> IntRep<T> getIntRep(Class<T> clazz) {
-        final Class identClazz = getIdentClass(clazz);
+    public <T extends Identifiable> IntRep<T> getIntRep(Desc<T> desc) {
+        final Class identClazz = desc.ident;
         instancesByParams.putIfAbsent(identClazz, new HashMap<>());
         instances.putIfAbsent(identClazz, new ArrayList<>());
 
@@ -92,13 +86,13 @@ public class IRStorage {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> List<T> getInstances(Class<T> clazz) {
-        final Class identClazz = getIdentClass(clazz);
+    public <T> List<T> getInstances(Desc<T> desc) {
+        final Class identClazz = desc.ident;
         instancesByParams.putIfAbsent(identClazz, new HashMap<>());
         instances.putIfAbsent(identClazz, new ArrayList<>());
 
         return instances.get(identClazz).stream()
-                .filter(o -> clazz.isInstance(o))
+                .filter(o -> desc.described.isInstance(o))
                 .map(o -> (T) o)
                 .collect(Collectors.toList());
     }

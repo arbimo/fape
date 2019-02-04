@@ -24,10 +24,10 @@ public class TemporalDTGRoutePlanner implements TSPRoutePlanner {
     public Result getPlan(Collection<Fluent> targets, PartialState ps, PartialPlan st) {
         Preprocessor pp = st.pl.preprocessor;
 
-        IDijkstraQueue<TemporalDTG.Node> q = new IDijkstraQueue<>(pp.store.getIntRep(TemporalDTG.Node.class));
+        IDijkstraQueue<TemporalDTG.Node> q = new IDijkstraQueue<>(pp.store.getIntRep(TemporalDTG.nodeDesc));
         Map<Node, TemporalDTG.Change> predecessors = new HashMap<>();
 
-        for(GStateVariable sv : pp.store.getInstances(GStateVariable.class)) {
+        for(GStateVariable sv : pp.store.getInstances(GStateVariable.desc)) {
             if(ps.labels.containsKey(sv) && !ps.latestLabel(sv).isUndefined()) {
                 PartialState.Label l = ps.latestLabel(sv);
                 q.insert(l.getNode(), 0);

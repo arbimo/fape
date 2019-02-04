@@ -2,13 +2,21 @@ package fr.laas.fape.planning.core.planning.grounding;
 
 import fr.laas.fape.anml.model.concrete.InstanceRef;
 import fr.laas.fape.structures.AbsIdentifiable;
+import fr.laas.fape.structures.Desc;
 import fr.laas.fape.structures.Ident;
 import fr.laas.fape.structures.ValueConstructor;
 
 import java.util.Collection;
 
 @Ident(GTask.class)
-public class GTask extends AbsIdentifiable {
+public final class GTask extends AbsIdentifiable {
+    public static Desc<GTask> desc = Desc.get(GTask.class);
+
+    @Override
+    public Desc descriptor() {
+        return desc;
+    }
+
     public final String name;
     public final InstanceRef[] args;
 

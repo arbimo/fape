@@ -25,7 +25,7 @@ public class MutexesHandler extends Handler {
 
         public IRSet<Fluent> getMutexesOf(Fluent f) {
             if(!mutexes.containsKey(f))
-                mutexes.put(f, new IRSet<>(planner.preprocessor.store.getIntRep(Fluent.class)));
+                mutexes.put(f, new IRSet<>(planner.preprocessor.store.getIntRep(Fluent.desc)));
             return mutexes.get(f);
         }
 
@@ -84,7 +84,7 @@ public class MutexesHandler extends Handler {
      */
     public void getMutexes(PartialPlan st) {
         Preprocessor pp = st.pl.preprocessor;
-        IntRep<Fluent> fluentRep = pp.store.getIntRep(Fluent.class);
+        IntRep<Fluent> fluentRep = pp.store.getIntRep(Fluent.desc);
 
         for(Fluent p : pp.getAllFluents()) {
             IRSet<Fluent> incompatible = new IRSet<Fluent>(fluentRep);

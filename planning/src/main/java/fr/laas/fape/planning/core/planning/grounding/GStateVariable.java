@@ -3,6 +3,7 @@ package fr.laas.fape.planning.core.planning.grounding;
 import fr.laas.fape.anml.model.Function;
 import fr.laas.fape.anml.model.concrete.InstanceRef;
 import fr.laas.fape.structures.AbsIdentifiable;
+import fr.laas.fape.structures.Desc;
 import fr.laas.fape.structures.Ident;
 import fr.laas.fape.structures.ValueConstructor;
 
@@ -11,6 +12,8 @@ import java.util.stream.Collectors;
 
 @Ident(GStateVariable.class)
 public class GStateVariable extends AbsIdentifiable {
+    public static Desc<GStateVariable> desc = Desc.get(GStateVariable.class);
+    public Desc descriptor() { return desc; }
 
     final public Function f;
     final public List<InstanceRef> params;

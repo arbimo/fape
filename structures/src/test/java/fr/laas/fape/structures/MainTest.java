@@ -7,6 +7,8 @@ public class MainTest {
     @Ident(SimpleClass.class)
     public static class SimpleClass extends AbsIdentifiable {
 
+        static Desc<SimpleClass> desc = Desc.get(SimpleClass.class);
+        public Desc descriptor() { return desc; }
         String f1;
         int f2;
 
@@ -27,8 +29,8 @@ public class MainTest {
 
     public static void main(String[] args) {
         class TestStore extends IRStorage {
-            public SimpleClass getTest(String s, int i) { return (SimpleClass) get(SimpleClass.class, Arrays.asList(s, i)); }
-            public SimpleClass getTest(int id) { return (SimpleClass) get(SimpleClass.class, id); }
+            public SimpleClass getTest(String s, int i) { return (SimpleClass) get(SimpleClass.desc, Arrays.asList(s, i)); }
+            public SimpleClass getTest(int id) { return (SimpleClass) get(SimpleClass.desc, id); }
         }
 
 //        IRStorage store = new IRStorage() { public Test getTest(String s, int i) { return (Test) get(Test.class, Arrays.asList(s, i)); } };

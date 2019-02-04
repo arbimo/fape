@@ -145,8 +145,8 @@ public class PartialPlanReachabilityGraph implements ReachabilityGraph {
         }
 
         // extract results as more general ground object (the representation here is slightly different)
-        addableActs = new IRSet<>(core.store.getIntRep(GAction.class));
-        fluentsEAs = new IR2IntMap<>(core.store.getIntRep(Fluent.class));
+        addableActs = new IRSet<>(core.store.getIntRep(GAction.desc));
+        fluentsEAs = new IR2IntMap<>(core.store.getIntRep(Fluent.desc));
         for(Node n : earliestAppearances.keys()) {
             if(n instanceof TempFluent.SVFluent) {
                 fluentsEAs.put(((TempFluent.SVFluent) n).fluent, earliestAppearances.get(n));
@@ -281,7 +281,7 @@ public class PartialPlanReachabilityGraph implements ReachabilityGraph {
                 for(TempFluent.DGFluent f : initFluents.keySet())
                     eas.putIfAbsent(f, 0);
             }
-            possible = new IRSet<Node>(core.store.getIntRep(Node.class));
+            possible = new IRSet<Node>(core.store.getIntRep(Node.desc));
             earliestAppearances = this.eas;
 
             PrimitiveIterator.OfInt it = eas.keysIterator();
@@ -333,7 +333,7 @@ public class PartialPlanReachabilityGraph implements ReachabilityGraph {
 
         /** Update the EA of the node if necessary. Returns true if node was updated */
         private boolean update(int nid) {
-            Node n = (Node) core.store.get(Node.class, nid);
+            Node n = (Node) core.store.get(Node.desc, nid);
             if(n instanceof TempFluent.DGFluent)
                 return updateFluent((TempFluent.DGFluent) n);
             else
@@ -397,12 +397,12 @@ public class PartialPlanReachabilityGraph implements ReachabilityGraph {
         IR2IntMap<Node> pendingForActivation;
         final IR2IntMap<Node> optimisticValues;
 
-        IR2IntMap<Node> labelsPred = new IR2IntMap<>(core.store.getIntRep(Node.class));
+        IR2IntMap<Node> labelsPred = new IR2IntMap<>(core.store.getIntRep(Node.desc));
 
         boolean firstPropagationFinished = false;
 
         private int cost(Node n) { return q.getCost(n); }
-        private Node pred(Node n) { return (Node) core.store.get(Node.class, labelsPred.get(n)); }
+        private Node pred(Node n) { return (Node) core.store.get(Node.desc, labelsPred.get(n)); }
         private void setPred(Node n, Node pred) {
             assert possible(pred) || pred == n;
             labelsPred.put(n, pred.getID());
@@ -413,7 +413,7 @@ public class PartialPlanReachabilityGraph implements ReachabilityGraph {
         private boolean shouldIgnore(MaxEdge e) { return e.delay < 0 || core.getFluentsWithIncomingNegEdge().contains(e.fluent);  }
         private Iterable<MaxEdge> ignoredEdges() { return core.getEdgesToIgnoreInDijkstra(); }
 
-        IDijkstraQueue<Node> q = new IDijkstraQueue<>(core.store.getIntRep(Node.class));
+        IDijkstraQueue<Node> q = new IDijkstraQueue<>(core.store.getIntRep(Node.desc));
 
         private void enqueue(Node n, int cost, Node pred) {
             if(!optimisticValues.containsKey(n))
@@ -474,7 +474,7 @@ public class PartialPlanReachabilityGraph implements ReachabilityGraph {
                 for(TempFluent.DGFluent f : initFluents.keySet())
                     optimisticValues.putIfAbsent(f, 0);
 
-                pendingForActivation = new IR2IntMap<>(core.store.getIntRep(Node.class));
+                pendingForActivation = new IR2IntMap<>(core.store.getIntRep(Node.desc));
                 for(Node n : optimisticValues.keys()) {
                     if(n instanceof ActionNode) { // action node
                         ActionNode a = (ActionNode) n;
@@ -553,7 +553,7 @@ public class PartialPlanReachabilityGraph implements ReachabilityGraph {
         }
 
         private void incrementalDijkstra() {
-            IRSet<Node> settled = new IRSet<>(core.store.getIntRep(Node.class));
+            IRSet<Node> settled = new IRSet<>(core.store.getIntRep(Node.desc));
             while(!q.isEmpty()) {
                 Node n = q.poll();
                 settled.add(n);

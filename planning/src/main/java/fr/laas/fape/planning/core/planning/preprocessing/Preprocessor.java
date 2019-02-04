@@ -89,7 +89,7 @@ public class Preprocessor {
     public void setPossibleFluents(IRSet<Fluent> fluents) {
         assert !fluentsInitialized() : "Possible fluents were already set.";
         allFluents = fluents;
-        allStateVariables = new IRSet<>(store.getIntRep(GStateVariable.class));
+        allStateVariables = new IRSet<>(store.getIntRep(GStateVariable.desc));
         for(Fluent f : fluents) {
             allStateVariables.add(f.sv);
         }
